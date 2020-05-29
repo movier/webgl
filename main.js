@@ -21,10 +21,12 @@ var fragmentShaderSource = `#version 300 es
 
 precision highp float;
 
+uniform vec4 u_color;
+
 out vec4 outColor;
 
 void main() {
-  outColor = vec4(1, 0, 0.5, 1);
+  outColor = u_color;
 }
 `;
 
@@ -70,19 +72,10 @@ function main() {
 
   var positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
   var resolutionUniformLocation = gl.getUniformLocation(program, 'u_resolution');
+  var colorLocation = gl.getUniformLocation(program, 'u_color');
 
   var positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
-  var positions = [
-    10, 20,
-    80, 20,
-    10, 30,
-    10, 30,
-    80, 20,
-    80, 30,
-  ];
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
   var vao = gl.createVertexArray();
   gl.bindVertexArray(vao);
@@ -107,10 +100,34 @@ function main() {
 
   gl.bindVertexArray(vao);
 
-  var primitiveType = gl.TRIANGLES;
-  var offset = 0;
-  var count = 6;
-  gl.drawArrays(primitiveType, offset, count);
+  for (var ii = 0; ii < 50; ++ii) {
+    setRectangle(gl, randomInt(300), randomInt(300), randomInt(300), randomInt(300));
+    gl.uniform4f(colorLocation, Math.random(), Math.random(), Math.random(), 1);
+    var primitiveType = gl.TRIANGLES;
+    var offset = 0;
+    var count = 6;
+    gl.drawArrays(primitiveType, offset, count);
+  }
+
+  function randomInt(range) {
+    return Math.floor(Math.random() * range);
+  }
+
+  function setRectangle(gl, x, y, width, height) {
+    var x1 = x;
+    var x2 = x + width;
+    var y1 = y;
+    var y2 = y + height;
+   
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+       x1, y1,
+       x2, y1,
+       x1, y2,
+       x1, y2,
+       x2, y1,
+       x2, y2]), gl.STATIC_DRAW);
+  }
+
 }
 
 main();
